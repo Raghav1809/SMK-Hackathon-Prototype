@@ -1,0 +1,43 @@
+# Dependencies
+node_modules/
+client/node_modules/
+server/node_modules/
+
+# Environment files
+.env
+.env.*
+*.local
+
+# Build output
+client/dist/
+client/build/
+server/dist/
+server/build/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Tooling caches
+.cache/
+.vite/
+coverage/
+.tmp/
+.temp/
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+
+# Database / local data
+*.sqlite
+*.sqlite3
+*.db
+
+# Editor settings
+.vscode/
+.idea/
