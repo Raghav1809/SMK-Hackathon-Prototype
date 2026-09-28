@@ -1,13 +1,13 @@
-# 🚧 ROADPULSE — Smart Road Intelligence & Resolution Platform
+# 🚧 PotholeX – Smart Pothole Detection, Reporting & Resolution
 
 > **Tagline:** Report. Route. Resolve. Verify.  
-> **Subtitle:** Smart Road Intelligence & Resolution Platform
+> **Subtitle:** Smart Pothole Detection, Reporting & Resolution
 
 ---
 
 ## 📌 Overview
 
-**RoadPulse** is an iOS-inspired, modern civic-tech platform for citizen photo + GPS pothole reporting, automatic ward routing, 24-hour SLA tracking, automated escalations, and closed-loop citizen verification.
+**PotholeX** is an iOS-inspired, modern civic-tech platform for citizen photo + GPS pothole reporting, automatic ward routing, 24-hour SLA tracking, automated escalations, and closed-loop citizen verification.
 
 Instead of building a simple CRUD website, RoadPulse models an intelligent, transparent, and accountable municipal workflow:
 ```
@@ -113,4 +113,4 @@ The application includes a quick role switcher in the top navigation bar:
 
 ## 📄 License & Hackathon Prototype Notice
 
-RoadPulse is built as a civic-tech prototype demonstrating smart municipal road management, SLA accountability, and citizen verification.
+PotholeX  is built as a civic-tech prototype demonstrating smart municipal road management, SLA accountability, and citizen verification.
