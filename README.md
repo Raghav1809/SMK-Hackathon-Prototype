@@ -95,21 +95,6 @@ The application includes a quick role switcher in the top navigation bar:
 
 ---
 
-## 📡 REST API Summary
-
-- `POST /api/auth/login` — Switch active demo role
-- `GET /api/potholes` — Fetch all potholes (supports `status`, `ward`, `severity` filters)
-- `GET /api/potholes/:id` — Fetch single complaint details
-- `POST /api/potholes` — Submit new report (AI risk calculation & automatic ward routing)
-- `PUT /api/potholes/:id` — Update status / work order
-- `POST /api/potholes/:id/support` — Support an existing report (+1 priority boost)
-- `POST /api/potholes/check-duplicates` — Check for nearby duplicate reports within ~45m
-- `POST /api/potholes/:id/escalate` — Trigger SLA breach escalation
-- `POST /api/verification` — Submit citizen repair verification (`VERIFIED` vs `REOPENED`)
-- `GET /api/analytics/dashboard` — Command center metrics & ward performance
-- `POST /api/analytics/predict-risk` — AI Road Risk prediction forecast
-
----
 
 ## 📄 License & Hackathon Prototype Notice
 
