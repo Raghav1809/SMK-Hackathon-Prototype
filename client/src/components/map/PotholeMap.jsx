@@ -1,57 +1,71 @@
-import React, { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap, Circle } from 'react-leaflet';
-import L from 'leaflet';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
+import { GoogleMap, useJsApiLoader, Marker, Circle } from '@react-google-maps/api';
 import { ShieldAlert, AlertTriangle, CheckCircle2, UserCheck, Flame } from 'lucide-react';
 
-// Custom Animated DivIcon generator for Leaflet Pins
-const createPotholeIcon = (severity, status, isSelected) => {
-  let colorClass = 'bg-emerald-500 border-white text-white shadow-emerald-500/50';
-  let pulseEffect = '';
+const containerStyle = {
+  width: '100%',
+  height: '100%'
+};
+
+// Custom Icon generator for Google Maps Pins
+const getMarkerIcon = (severity, status, isSelected) => {
+  let fillColor = '#10b981'; // emerald-500
+  let scale = isSelected ? 1.5 : 1;
+  let strokeColor = '#ffffff';
+  let strokeWeight = isSelected ? 3 : 2;
 
   if (severity === 'CRITICAL' || status === 'Escalated') {
-    colorClass = 'bg-rose-600 border-white text-white shadow-rose-600/50';
-    pulseEffect = 'marker-pulse-critical';
+    fillColor = '#e11d48'; // rose-600
   } else if (severity === 'HIGH' || status === 'Reopened') {
-    colorClass = 'bg-orange-500 border-white text-white shadow-orange-500/50';
+    fillColor = '#f97316'; // orange-500
   } else if (severity === 'MEDIUM') {
-    colorClass = 'bg-amber-500 border-white text-white shadow-amber-500/50';
+    fillColor = '#f59e0b'; // amber-500
   }
 
   if (status === 'Closed' || status === 'Resolved') {
-    colorClass = 'bg-emerald-600 border-white text-white shadow-emerald-600/30';
-    pulseEffect = '';
+    fillColor = '#059669'; // emerald-600
   }
 
-  const iconHtml = `
-    <div className="relative flex items-center justify-center">
-      <div className="w-8 h-8 rounded-full border-2 shadow-lg flex items-center justify-center font-bold text-xs ${colorClass} ${pulseEffect} transform transition-transform ${isSelected ? 'scale-125 ring-4 ring-blue-500/40' : 'hover:scale-110'}">
-        ${status === 'Closed' ? '✓' : severity === 'CRITICAL' ? '!' : '•'}
-      </div>
-    </div>
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+      <circle cx="16" cy="16" r="14" fill="${fillColor}" stroke="${strokeColor}" stroke-width="${strokeWeight}" />
+      ${status === 'Closed' ? '<path d="M10 16l4 4 8-8" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>' : 
+        severity === 'CRITICAL' ? '<text x="16" y="21" font-family="sans-serif" font-size="16" font-weight="bold" fill="white" text-anchor="middle">!</text>' : 
+        '<circle cx="16" cy="16" r="4" fill="white" />'}
+    </svg>
   `;
 
-  return L.divIcon({
-    html: iconHtml,
-    className: 'custom-leaflet-marker',
-    iconSize: [32, 32],
-    iconAnchor: [16, 16],
-  });
+  return {
+    url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg),
+    scaledSize: new window.google.maps.Size(32 * scale, 32 * scale),
+    anchor: new window.google.maps.Point(16 * scale, 16 * scale),
+  };
 };
 
-// Component to handle map view bounds auto-centering
-function MapRecenter({ center }) {
-  const map = useMap();
-  useEffect(() => {
-    if (center) {
-      map.flyTo(center, 15, { duration: 1.2 });
-    }
-  }, [center, map]);
-  return null;
-}
-
 export default function PotholeMap({ potholes = [], onSelectPothole, selectedId, centerLocation, showHeatmap = false }) {
-  const defaultCenter = centerLocation || [16.6982, 74.2315];
+  const mapCenter = centerLocation ? { lat: centerLocation[0], lng: centerLocation[1] } : { lat: 16.8544, lng: 74.5642 };
   const [activePothole, setActivePothole] = useState(null);
+
+  const { isLoaded } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || ''
+  });
+
+  const mapRef = useRef(null);
+
+  const onLoad = useCallback(function callback(map) {
+    mapRef.current = map;
+  }, []);
+
+  const onUnmount = useCallback(function callback(map) {
+    mapRef.current = null;
+  }, []);
+
+  useEffect(() => {
+    if (mapRef.current && centerLocation) {
+      mapRef.current.panTo({ lat: centerLocation[0], lng: centerLocation[1] });
+    }
+  }, [centerLocation]);
 
   return (
     <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-inner border border-slate-200/80">
@@ -72,67 +86,73 @@ export default function PotholeMap({ potholes = [], onSelectPothole, selectedId,
         </div>
       </div>
 
-      <MapContainer
-        center={defaultCenter}
-        zoom={14}
-        scrollWheelZoom={true}
-        style={{ width: '100%', height: '100%' }}
-      >
-        <MapRecenter center={defaultCenter} />
-        
-        {/* OpenStreetMap CartoDB Light Tile Layer for modern clean map styling */}
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-        />
+      {isLoaded ? (
+        <GoogleMap
+          mapContainerStyle={containerStyle}
+          center={mapCenter}
+          zoom={14}
+          onLoad={onLoad}
+          onUnmount={onUnmount}
+          options={{
+            disableDefaultUI: true,
+            zoomControl: true,
+            styles: [ { featureType: "poi", elementType: "labels", stylers: [ { visibility: "off" } ] } ]
+          }}
+        >
+          {/* Heatmap Overlay Circles if Heatmap mode enabled */}
+          {showHeatmap && potholes.map(p => (
+            <Circle
+              key={`heat-${p.complaintId}`}
+              center={{ lat: p.latitude, lng: p.longitude }}
+              radius={p.riskScore * 10}
+              options={{
+                fillColor: p.riskScore > 75 ? '#ef4444' : p.riskScore > 50 ? '#f97316' : '#f59e0b',
+                fillOpacity: 0.35,
+                strokeColor: p.riskScore > 75 ? '#ef4444' : p.riskScore > 50 ? '#f97316' : '#f59e0b',
+                strokeOpacity: 0.8,
+                strokeWeight: 1,
+              }}
+            />
+          ))}
 
-        {/* Heatmap Overlay Circles if Heatmap mode enabled */}
-        {showHeatmap && potholes.map(p => (
-          <Circle
-            key={`heat-${p.complaintId}`}
-            center={[p.latitude, p.longitude]}
-            radius={p.riskScore * 3}
-            pathOptions={{
-              color: p.riskScore > 75 ? '#ef4444' : p.riskScore > 50 ? '#f97316' : '#f59e0b',
-              fillColor: p.riskScore > 75 ? '#ef4444' : p.riskScore > 50 ? '#f97316' : '#f59e0b',
-              fillOpacity: 0.35,
-              weight: 1
-            }}
-          />
-        ))}
+          {/* User GPS Location Marker */}
+          {centerLocation && (
+            <Marker
+              position={{ lat: centerLocation[0], lng: centerLocation[1] }}
+              icon={{
+                url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                    <circle cx="12" cy="12" r="10" fill="#2563eb" stroke="white" stroke-width="2" />
+                    <circle cx="12" cy="12" r="4" fill="white" />
+                  </svg>
+                `),
+                scaledSize: new window.google.maps.Size(24, 24),
+                anchor: new window.google.maps.Point(12, 12),
+              }}
+            />
+          )}
 
-        {/* User GPS Location Marker */}
-        {centerLocation && (
-          <Marker
-            position={centerLocation}
-            icon={L.divIcon({
-              html: `
-                <div className="relative">
-                  <div className="w-5 h-5 bg-blue-600 border-2 border-white rounded-full shadow-lg"></div>
-                  <div className="absolute -inset-2 bg-blue-500/30 rounded-full animate-ping"></div>
-                </div>
-              `,
-              iconSize: [20, 20],
-              iconAnchor: [10, 10]
-            })}
-          />
-        )}
-
-        {/* Pothole Markers */}
-        {potholes.map(pothole => (
-          <Marker
-            key={pothole.complaintId}
-            position={[pothole.latitude, pothole.longitude]}
-            icon={createPotholeIcon(pothole.severity, pothole.status, selectedId === pothole.complaintId)}
-            eventHandlers={{
-              click: () => {
+          {/* Pothole Markers */}
+          {potholes.map(pothole => (
+            <Marker
+              key={pothole.complaintId}
+              position={{ lat: pothole.latitude, lng: pothole.longitude }}
+              icon={getMarkerIcon(pothole.severity, pothole.status, selectedId === pothole.complaintId)}
+              onClick={() => {
                 setActivePothole(pothole);
                 if (onSelectPothole) onSelectPothole(pothole);
-              }
-            }}
-          />
-        ))}
-      </MapContainer>
+              }}
+            />
+          ))}
+        </GoogleMap>
+      ) : (
+        <div className="w-full h-full flex flex-col items-center justify-center bg-slate-100/50 backdrop-blur-sm">
+          <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+          <p className="text-sm font-semibold text-slate-600">
+            {import.meta.env.VITE_GOOGLE_MAPS_API_KEY ? 'Loading Maps...' : 'API Key Required'}
+          </p>
+        </div>
+      )}
 
       {/* Floating Bottom Sheet Card for Selected Marker */}
       {activePothole && (

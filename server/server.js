@@ -157,8 +157,8 @@ app.get('/api/potholes/:id', async (req, res) => {
 // 4. Create New Pothole Report (AI Risk & Ward Routing)
 app.post('/api/potholes', async (req, res) => {
   try {
-    const lat = Number(req.body.latitude) || 16.6982;
-    const lng = Number(req.body.longitude) || 74.2315;
+    const lat = Number(req.body.latitude) || 16.8544;
+    const lng = Number(req.body.longitude) || 74.5642;
 
     const wardObj = findWardByCoordinates(lat, lng);
     const riskAnalysis = calculateRiskScore({

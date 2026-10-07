@@ -65,8 +65,8 @@ class InMemoryStore {
   }
 
   createPothole(data) {
-    const lat = Number(data.latitude) || 16.6982;
-    const lng = Number(data.longitude) || 74.2315;
+    const lat = Number(data.latitude) || 16.8544;
+    const lng = Number(data.longitude) || 74.5642;
 
     // Ward Identification
     const wardObj = findWardByCoordinates(lat, lng);

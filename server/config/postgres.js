@@ -95,10 +95,10 @@ export async function initPostgres() {
       );
     `);
 
-    // Seed data if potholes table is empty
-    const checkRes = await client.query('SELECT COUNT(*) FROM potholes');
-    if (parseInt(checkRes.rows[0].count) === 0) {
-      console.log('🌱 Seeding PostgreSQL database with initial demo potholes...');
+    // Always truncate and re-seed so coordinate/data changes in demoData.js are reflected
+    console.log('🌱 Seeding PostgreSQL database with initial demo potholes...');
+    await client.query('TRUNCATE TABLE potholes RESTART IDENTITY CASCADE');
+    {
       for (const p of SEED_POTHOLES) {
         await client.query(
           `INSERT INTO potholes (

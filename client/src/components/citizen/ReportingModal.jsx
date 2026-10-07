@@ -18,8 +18,8 @@ export default function ReportingModal({ isOpen, onClose, onReportSuccess }) {
   const [customPhotoName, setCustomPhotoName] = useState('Captured Photo');
 
   // Location State
-  const [lat, setLat] = useState(16.6982);
-  const [lng, setLng] = useState(74.2315);
+  const [lat, setLat] = useState(16.8544);
+  const [lng, setLng] = useState(74.5642);
   const [address, setAddress] = useState('MG Road, near St. Xavier High School');
   const [locationLoading, setLocationLoading] = useState(false);
 

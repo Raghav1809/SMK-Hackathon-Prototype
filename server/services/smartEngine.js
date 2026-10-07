@@ -7,7 +7,7 @@
 export const WARDS_REGISTRY = [
   {
     name: 'Ward 12 - Central Zone',
-    bounds: { minLat: 16.690, maxLat: 16.710, minLng: 74.220, maxLng: 74.245 },
+    bounds: { minLat: 16.846, maxLat: 16.866, minLng: 74.553, maxLng: 74.578 },
     department: 'Central Road Maintenance & Pavement Division',
     primaryEngineer: {
       name: 'Amit Patil',
@@ -20,7 +20,7 @@ export const WARDS_REGISTRY = [
   },
   {
     name: 'Ward 8 - North Zone',
-    bounds: { minLat: 16.710, maxLat: 16.735, minLng: 74.220, maxLng: 74.245 },
+    bounds: { minLat: 16.866, maxLat: 16.891, minLng: 74.553, maxLng: 74.578 },
     department: 'North Highway & Urban Infrastructure Works',
     primaryEngineer: {
       name: 'Rajesh Sharma',
@@ -33,7 +33,7 @@ export const WARDS_REGISTRY = [
   },
   {
     name: 'Ward 5 - South Zone',
-    bounds: { minLat: 16.665, maxLat: 16.690, minLng: 74.220, maxLng: 74.245 },
+    bounds: { minLat: 16.821, maxLat: 16.846, minLng: 74.553, maxLng: 74.578 },
     department: 'South Suburb Asphalt & Repair Section',
     primaryEngineer: {
       name: 'Priya Nair',
@@ -46,7 +46,7 @@ export const WARDS_REGISTRY = [
   },
   {
     name: 'Ward 3 - East Zone',
-    bounds: { minLat: 16.680, maxLat: 16.720, minLng: 74.245, maxLng: 74.270 },
+    bounds: { minLat: 16.836, maxLat: 16.876, minLng: 74.578, maxLng: 74.603 },
     department: 'East Commercial Arterial Roads Section',
     primaryEngineer: {
       name: 'Vikas Gaikwad',
